@@ -130,6 +130,24 @@ The strategy above holds regardless, but to convert it into a dollar-specific 90
 
 ---
 
+## Appendix: How to bolt on programmatic
+
+Programmatic is move #5 above — monetizing unsold loop time with automated national demand. For MCTV the path is gated by one fact: **programmatic connects to the CMS, not the screens directly**, and MCTV's screens run on NTV360's proprietary CMS.
+
+**Step 0 — Ask NTV360.** Does the franchise support an SSP connection for dealers, through whom, and how does remnant revenue split? This determines everything below.
+
+**Route A — NTV360 already integrates an SSP (best case).** Opt in, set floors, choose how much loop time to open, and national fill begins. Near-zero engineering.
+
+**Route B — Independent monetization partner (best small-network route if A is unavailable).** **Adomni** (SSP+DSP+exchange) lets media owners list unsold inventory, set their own floor/eCPM, and sell guaranteed or if-available; existing supply peers include place-based networks (Impax Media, BevTV, Coffee Bean & Tea Leaf). Or a rep/monetization partner like **Screenverse** takes inventory to market across SSPs for a rev-share. CMS must still play the sold creative, so NTV360 cooperation remains in the loop.
+
+**Route C — Full SSP integration (Vistar / Hivestack / Broadsign–Place Exchange).** Highest demand ceiling; requires CMS-level RTB integration, creative validation, audited play logs, and first-party impression data approved by the SSP. Feasible only if NTV360 builds/supports it.
+
+**Scale check:** SSPs want ~500K+ impressions/month for meaningful demand. MCTV's Starkville cluster alone is ~310K/month and the five-market network is comfortably 1M+/month — so scale is not the blocker. The blocker is measurement: impressions are currently computed as traffic × dwell, and SSPs (Vistar especially) require validation-ready first-party impression data.
+
+**Prerequisites (any route):** validation-ready impression methodology; inventory metadata (venue type, lat/long, screen specs, hours, loop length, seconds/loop opened to programmatic); floor pricing at/above effective local rates; premium/exclusive slots reserved for direct sale.
+
+**Guardrail:** small place-based programmatic CPMs run ~$4–$10 — far below MCTV's local direct packages. Treat programmatic strictly as remnant *fill* on top of the local book, never as a replacement, and set floors so it can't undercut direct sales.
+
 ## Sources & verification
 
 Primary founder/company sources (footprint and model corroborated across trade press; **financials, revenue-share %s, and CPMs are not publicly disclosed for the private operators and are flagged as such throughout**):
