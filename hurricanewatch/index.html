@@ -16,14 +16,19 @@
   --red:#E4232E; --red-deep:#B0151F; --orange:#F26419; --amber:#E6A417;
   --yellow:#E6C64A; --calm:#2FB35C; --calm-bright:#4BE27E;
   --chipink:#fff;
+  /* severity label ink — bright on dark ground by default */
+  --sev-warn:#ff8a90; --sev-watch:#ffab7a;
 }
 :root[data-theme="dark"]{ --ink:#0B0F14; --panel:#141B23; --panel2:#1B2430; --panel3:#233040; --line:#2A3641; --line2:#38495a;
-  --text:#E8EDF2; --muted:#93A1B0; --slate-bright:#8FA3B8; --gold:#E6BD79; --green-bright:#3ED675; }
+  --text:#E8EDF2; --muted:#93A1B0; --slate-bright:#8FA3B8; --gold:#E6BD79; --green-bright:#3ED675;
+  --sev-warn:#ff8a90; --sev-watch:#ffab7a; }
 :root[data-theme="light"]{ --ink:#EEF1F4; --panel:#FFFFFF; --panel2:#E9EEF2; --panel3:#DCE4EB; --line:#C9D2DA; --line2:#b3c0cb;
-  --text:#141B23; --muted:#5C6B7E; --slate-bright:#46586B; --gold:#9A7328; --green-bright:#0A8A48; }
+  --text:#141B23; --muted:#5C6B7E; --slate-bright:#46586B; --gold:#9A7328; --green-bright:#0A8A48;
+  --sev-warn:#C21F27; --sev-watch:#B4531A; }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){ --ink:#EEF1F4; --panel:#FFFFFF; --panel2:#E9EEF2; --panel3:#DCE4EB; --line:#C9D2DA; --line2:#b3c0cb;
-    --text:#141B23; --muted:#5C6B7E; --slate-bright:#46586B; --gold:#9A7328; --green-bright:#0A8A48; }
+    --text:#141B23; --muted:#5C6B7E; --slate-bright:#46586B; --gold:#9A7328; --green-bright:#0A8A48;
+    --sev-warn:#C21F27; --sev-watch:#B4531A; }
 }
 
 *{box-sizing:border-box}
@@ -61,6 +66,8 @@ body{
 .livebadge.live{color:var(--calm-bright);border-color:rgba(75,226,126,.45);background:rgba(47,179,92,.10)}
 .livebadge.sample{color:var(--gold);border-color:rgba(230,189,121,.4);background:rgba(230,189,121,.08)}
 .livebadge.sample .dot{background:var(--gold)}
+.livebadge.na{color:var(--slate-bright);border-color:var(--line2);background:transparent}
+.livebadge.na .dot{background:var(--slate-bright)}
 @media (prefers-reduced-motion: no-preference){
   .livebadge.live .dot{animation:pulse 2s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(75,226,126,.55)}70%{box-shadow:0 0 0 9px rgba(75,226,126,0)}100%{box-shadow:0 0 0 0 rgba(75,226,126,0)}}
@@ -79,10 +86,15 @@ body{
 .threatband .desc{font-size:clamp(15px,1.7vw,19px);line-height:1.45;max-width:40ch;opacity:.97}
 .threatband .counties{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
 .threatband .counties .tag{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.30);color:#fff}
+/* threat bands keep white body text and are darkened so it clears WCAG 4.5:1 */
 .threat-red{background:linear-gradient(135deg,var(--red-deep),var(--red));border-color:var(--red)}
-.threat-orange{background:linear-gradient(135deg,#c24a10,var(--orange));border-color:var(--orange)}
-.threat-yellow{background:linear-gradient(135deg,#9c7a12,var(--amber));border-color:var(--amber)}
-.threat-green{background:linear-gradient(135deg,#0f6d38,var(--calm));border-color:var(--calm)}
+.threat-orange{background:linear-gradient(135deg,#9c3a0c,#bc4712);border-color:var(--orange)}
+.threat-green{background:linear-gradient(135deg,#0b5b2f,#0f7a3c);border-color:var(--calm)}
+.threat-gray{background:linear-gradient(135deg,#33414f,#46586b);border-color:var(--line2)}
+/* amber can't reach 4.5:1 with white, so the caution band uses dark ink instead */
+.threat-yellow{background:linear-gradient(135deg,#d79a12,var(--amber));border-color:var(--amber);color:#141B23}
+.threat-yellow .lvl,.threat-yellow .desc{opacity:1}
+.threat-yellow .counties .tag{background:rgba(0,0,0,.14);border-color:rgba(20,27,35,.4);color:#141B23}
 .threatband .swirl{position:absolute;right:-70px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:.16;pointer-events:none}
 @media (prefers-reduced-motion: no-preference){ .threatband .swirl{animation:spin 26s linear infinite} @keyframes spin{to{transform:translateY(-50%) rotate(360deg)}} }
 .headline{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--slate-bright);border-radius:12px;padding:16px 20px;flex:0 0 auto}
@@ -130,7 +142,7 @@ body{
 .alertrow .ar-side{padding:14px 18px 14px 0;text-align:right;display:flex;flex-direction:column;gap:6px;align-items:flex-end;justify-content:center;white-space:nowrap}
 .alertrow .ar-side .sev{font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
 .alertrow .ar-side .exp{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.sev-warn .sev{color:#ff8a90} .sev-watch .sev{color:#ffab7a} .sev-adv .sev{color:var(--gold)}
+.sev-warn .sev{color:var(--sev-warn)} .sev-watch .sev{color:var(--sev-watch)} .sev-adv .sev{color:var(--gold)}
 
 /* ---------- SLIDE: traffic ---------- */
 .traffic{flex:1 1 auto;display:grid;grid-template-columns:1fr 340px;gap:20px;min-height:0}
@@ -174,6 +186,8 @@ body{
 .ticker .tk-track{flex:1 1 auto;overflow:hidden;white-space:nowrap;position:relative}
 .ticker .tk-move{display:inline-block;padding-left:100%;color:#fff;font-weight:600;font-size:13.5px;letter-spacing:.02em;will-change:transform}
 @media (prefers-reduced-motion: no-preference){ .ticker .tk-move{animation:scroll-left 42s linear infinite} @keyframes scroll-left{from{transform:translateX(0)}to{transform:translateX(-100%)}} }
+/* without motion the crawl can't scroll into view — pin it on-screen instead */
+@media (prefers-reduced-motion: reduce){ .ticker .tk-move{padding-left:16px} }
 .ticker .tk-move span{margin:0 34px}
 
 /* ---------- nav ---------- */
@@ -183,8 +197,9 @@ body{
 .nav button:hover{background:var(--panel2)}
 .nav button:focus-visible{outline:2px solid var(--slate-bright);outline-offset:2px}
 .dots{display:flex;gap:8px;align-items:center}
-.dots i{width:9px;height:9px;border-radius:50%;background:var(--line2);cursor:pointer;transition:transform .15s,background .15s}
-.dots i.on{background:var(--slate-bright);transform:scale(1.25)}
+.dots button{width:11px;height:11px;padding:0;border:0;border-radius:50%;background:var(--line2);cursor:pointer;transition:transform .15s,background .15s}
+.dots button.on{background:var(--slate-bright);transform:scale(1.25)}
+.dots button:focus-visible{outline:2px solid var(--slate-bright);outline-offset:3px}
 .count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:52px;text-align:center;letter-spacing:.08em}
 .progress{position:absolute;left:0;top:0;height:3px;background:var(--slate-bright);width:0;z-index:6}
 .playbtn{font-variant-numeric:tabular-nums}
@@ -212,7 +227,7 @@ body{
 
     <div class="cover">
       <div class="threatcol">
-        <div class="threatband threat-green" id="threatband">
+        <div class="threatband threat-green" id="threatband" role="status" aria-live="polite" aria-atomic="true">
           <svg class="swirl" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
             <path d="M50 8 C74 12 88 30 88 50 C88 66 76 76 62 74"/>
             <path d="M92 50 C88 26 70 12 50 12 C34 12 24 24 26 38"/>
@@ -307,8 +322,8 @@ body{
   <!-- nav -->
   <div class="nav">
     <button id="prev" aria-label="Previous panel">‹ Prev</button>
-    <button id="play" class="playbtn" aria-label="Pause or play rotation">❚❚ Pause</button>
-    <div class="dots" id="dots" role="tablist" aria-label="Panels"></div>
+    <button id="play" class="playbtn" aria-label="Pause rotation" aria-pressed="false">❚❚ Pause</button>
+    <div class="dots" id="dots" aria-label="Jump to panel"></div>
     <span class="count" id="count">1 / 6</span>
     <button id="next" aria-label="Next panel">Next ›</button>
   </div>
@@ -381,7 +396,9 @@ body{
   function hoursFromNow(h){ var d=new Date(Date.now()+h*3600*1000); return d.toISOString(); }
 
   /* ---------------- STATE ---------------- */
-  var state = { live:false, alerts:[], storms:[], lastUpdated:null };
+  // live = outbound access confirmed; liveA/liveS track each feed independently so
+  // a feed that failed is never shown as live (and sample data is never mislabeled).
+  var state = { live:false, liveA:false, liveS:false, alerts:[], storms:[], lastUpdated:null };
 
   /* ---------------- HELPERS ---------------- */
   function $(s,r){ return (r||document).querySelector(s); }
@@ -415,7 +432,8 @@ body{
   }
   function saffirCat(kt){ if(kt>=137)return 5; if(kt>=113)return 4; if(kt>=96)return 3; if(kt>=83)return 2; if(kt>=64)return 1; return 0; }
   function bearingName(deg){
-    if(deg==null||isNaN(deg))return "—";
+    // reject null/NaN and out-of-range sentinels (NHC uses -999 for undefined/stationary)
+    if(deg==null||isNaN(deg)||deg<0||deg>360)return "—";
     var dirs=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
     return dirs[Math.round(((deg%360)/22.5))%16];
   }
@@ -495,7 +513,11 @@ body{
     var mrow=el("div","metric-row");
     mrow.appendChild(metric(ktToMph(kt)+" mph","Max sustained wind"));
     mrow.appendChild(metric((s.pressure?s.pressure+" mb":"—"),"Min pressure"));
-    mrow.appendChild(metric((s.movementSpeed!=null?s.movementSpeed+" mph "+bearingName(s.movementDir):"—"),"Moving"));
+    // NHC reports movement in knots (like intensity); convert, and treat negative sentinels as unknown
+    var mvTxt = (s.movementSpeed!=null && s.movementSpeed>=0)
+      ? (ktToMph(s.movementSpeed)+" mph "+bearingName(s.movementDir)).trim()
+      : "—";
+    mrow.appendChild(metric(mvTxt,"Moving"));
     var dist=(s.latitudeNumeric!=null&&s.longitudeNumeric!=null)?haversine(MS_COAST,{lat:s.latitudeNumeric,lon:s.longitudeNumeric}):null;
     mrow.appendChild(metric(dist!=null?(dist+" mi"):"—","From MS coast"));
     body.appendChild(mrow);
@@ -519,6 +541,19 @@ body{
     ac.appendChild(ic); ac.appendChild(el("h3",null,heading)); ac.appendChild(el("p",null,msg));
     box.appendChild(ac);
   }
+  // neutral "we don't know" card — used when a feed fails on a live host, so we
+  // never imply all-clear (or show sample) for data we couldn't actually load.
+  function unavailCard(box,title,heading,msg){
+    box.innerHTML="";
+    var head=el("div","sc-head"); var nm=el("div","name"); nm.textContent=title; head.appendChild(nm); box.appendChild(head);
+    var ac=el("div","allclear");
+    var ic=el("div","ac-ic"); ic.style.background="rgba(143,163,184,.14)"; ic.style.borderColor="var(--slate-bright)";
+    ic.innerHTML='<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8FA3B8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    ac.appendChild(ic); ac.appendChild(el("h3",null,heading)); ac.appendChild(el("p",null,msg));
+    box.appendChild(ac);
+  }
+  function stormsUnavailable(){ return state.live && !state.liveS; }
+  function alertsUnavailable(){ return state.live && !state.liveA; }
 
   function mostRelevantStorm(){
     if(!state.storms.length) return null;
@@ -535,12 +570,20 @@ body{
 
   function renderCoverStorm(){
     var box=$("#coverstorm"); var s=mostRelevantStorm();
-    if(s){ renderStormCardInner(box,s); }
+    if(stormsUnavailable()){ unavailCard(box,"THE TROPICS","Storm data unavailable","The National Hurricane Center feed can't be reached right now. Alerts on this board remain live. Check hurricanes.gov for the latest track."); }
+    else if(s){ renderStormCardInner(box,s); }
     else { allClearCard(box,"THE TROPICS","No active systems","There are no tropical cyclones currently active in the Atlantic basin. This board updates automatically as the National Hurricane Center posts new advisories."); }
   }
 
   function renderStormsSlide(){
     var grid=$("#stormgrid"); grid.innerHTML="";
+    if(stormsUnavailable()){
+      var uc=el("div","stormcard");
+      unavailCard(uc,"ATLANTIC BASIN","Storm data unavailable","The National Hurricane Center feed can't be reached right now. This panel will refresh automatically; for the latest tropical outlook see hurricanes.gov.");
+      grid.appendChild(uc);
+      $("#stormsub").textContent="National Hurricane Center feed unavailable";
+      return;
+    }
     if(!state.storms.length){
       var card=el("div","stormcard");
       allClearCard(card,"ATLANTIC BASIN","No active tropical cyclones","The National Hurricane Center is not currently tracking any named storms or depressions in the Atlantic, Caribbean, or Gulf of Mexico.");
@@ -552,8 +595,17 @@ body{
     state.storms.forEach(function(s){ var c=el("div","stormcard"); renderStormCardInner(c,s); grid.appendChild(c); });
   }
 
+  var ALERT_CAP = 6; // fits a 1080p signage panel without an unscrollable overflow
   function renderAlertsSlide(){
     var list=$("#alertlist"); list.innerHTML="";
+    if(alertsUnavailable()){
+      var urow=el("div","alertrow"); urow.appendChild(el("div","stripe"));
+      var umain=el("div","ar-main");
+      umain.appendChild(el("div","ar-event","Alerts feed unavailable"));
+      umain.appendChild(el("div","ar-area","The National Weather Service alert feed can't be reached right now. This board will refresh automatically — for official alerts see weather.gov."));
+      urow.appendChild(umain); urow.appendChild(el("div","ar-side")); list.appendChild(urow);
+      $("#alertsub").textContent="NWS feed unavailable"; return;
+    }
     var alerts=state.alerts.slice().sort(function(a,b){ return alertRank(a)-alertRank(b); });
     if(!alerts.length){
       var row=el("div","alertrow"); row.appendChild(el("div","stripe"));
@@ -564,7 +616,7 @@ body{
       $("#alertsub").textContent="All clear statewide"; return;
     }
     $("#alertsub").textContent=alerts.length+" active "+(alerts.length>1?"alerts":"alert");
-    alerts.slice(0,12).forEach(function(a){
+    alerts.slice(0,ALERT_CAP).forEach(function(a){
       var row=el("div","alertrow "+sevClass(a));
       row.appendChild(el("div","stripe"));
       var main=el("div","ar-main");
@@ -578,6 +630,13 @@ body{
       if(a.senderName) side.appendChild(el("div","exp",a.senderName));
       row.appendChild(side); list.appendChild(row);
     });
+    if(alerts.length>ALERT_CAP){
+      var more=el("div","alertrow"); more.appendChild(el("div","stripe"));
+      var mm=el("div","ar-main");
+      mm.appendChild(el("div","ar-event","+ "+(alerts.length-ALERT_CAP)+" more active alert"+((alerts.length-ALERT_CAP)>1?"s":"")));
+      mm.appendChild(el("div","ar-area","Highest-priority alerts shown first. Full list at weather.gov."));
+      more.appendChild(mm); more.appendChild(el("div","ar-side")); list.appendChild(more);
+    }
   }
 
   /* town slides */
@@ -614,13 +673,21 @@ body{
         ul.appendChild(li);
       });
       var wx=$(".town-wx",node), body=$(".town-wx-body",node);
-      if(tas.length){
+      body.textContent="";
+      if(alertsUnavailable()){
+        wx.classList.remove("none");
+        body.appendChild(el("b",null,"Weather feed unavailable."));
+        body.appendChild(document.createTextNode(" Road-impact alerts can't be loaded right now — see weather.gov."));
+      } else if(tas.length){
         wx.classList.remove("none");
         var names={}; tas.forEach(function(a){ if(a.event) names[a.event]=1; });
-        body.innerHTML="<b>"+Object.keys(names).join(", ")+"</b> in effect for "+t.county+". Watch for water over roadways, debris, and signal outages on the corridors below.";
+        // event names come from api.weather.gov — build via textContent so they can never inject markup
+        body.appendChild(el("b",null,Object.keys(names).join(", ")));
+        body.appendChild(document.createTextNode(" in effect for "+t.county+". Watch for water over roadways, debris, and signal outages on the corridors below."));
       } else {
         wx.classList.add("none");
-        body.innerHTML="<b>Roads clear.</b> No flood, wind, or tropical alerts affecting local routes in "+t.county+".";
+        body.appendChild(el("b",null,"Roads clear."));
+        body.appendChild(document.createTextNode(" No flood, wind, or tropical alerts affecting local routes in "+t.county+"."));
       }
       setBadge($(".town-badge",node),$(".town-badge-t",node));
       // reflect live vs preview on the map pill
@@ -649,15 +716,17 @@ body{
   /* ---------------- BADGES / CLOCK / THREAT / TICKER ---------------- */
   function setBadge(node,txtNode){
     if(!node) return;
-    node.classList.remove("live","sample");
-    node.classList.add(state.live?"live":"sample");
-    if(txtNode) txtNode.textContent = state.live ? "Live" : "Sample";
+    var status = arguments.length>2 ? arguments[2] : (state.live?"live":"sample");
+    node.classList.remove("live","sample","na");
+    node.classList.add(status);
+    if(txtNode) txtNode.textContent = status==="live" ? "Live" : (status==="na" ? "No feed" : "Sample");
   }
+  function feedStatus(feedLive){ return state.live ? (feedLive?"live":"na") : "sample"; }
   function updateAllBadges(){
-    setBadge($("#badge0"),$("#badgetxt0"));
-    setBadge($("#badge1"),$("#badgetxt1"));
-    setBadge($("#badge2"),$("#badgetxt2"));
-    $all(".town-badge").forEach(function(b){ setBadge(b,$(".town-badge-t",b)); });
+    setBadge($("#badge0"),$("#badgetxt0"), state.live?"live":"sample");
+    setBadge($("#badge1"),$("#badgetxt1"), feedStatus(state.liveS));
+    setBadge($("#badge2"),$("#badgetxt2"), feedStatus(state.liveA));
+    $all(".town-badge").forEach(function(b){ setBadge(b,$(".town-badge-t",b), state.live?"live":"sample"); });
   }
   function tickClock(){
     var now=new Date();
@@ -666,6 +735,17 @@ body{
     if(d0)d0.textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
   }
   function renderThreat(){
+    if(alertsUnavailable()){
+      $("#threatband").className="threatband threat-gray";
+      $("#threatlvl").textContent="Alert Feed";
+      $("#threatbig").textContent="Unavailable";
+      $("#threatdesc").textContent="The National Weather Service alert feed can't be reached right now. This board keeps trying; for official alerts see weather.gov.";
+      $("#threatcounties").innerHTML="";
+      $("#headlinetxt").textContent="Live alert data will resume automatically once the feed is reachable.";
+      $("#headlinesrc").textContent="Source: National Weather Service";
+      buildTicker({lvl:"green"});
+      return;
+    }
     var th=deriveThreat(state.alerts);
     $("#threatband").className="threatband threat-"+th.lvl;
     $("#threatlvl").textContent=th.info.lbl;
@@ -743,26 +823,33 @@ body{
 
   function loadData(){
     var got={alerts:false,storms:false};
-    var pA=fetchJSON(NWS_ALERTS).then(function(j){ var a=normAlerts(j); state.alerts=a; got.alerts=true; }).catch(function(){});
+    var pA=fetchJSON(NWS_ALERTS).then(function(j){ state.alerts=normAlerts(j); got.alerts=true; }).catch(function(){});
     var pS=fetchJSON(NHC_STORMS).then(function(j){ state.storms=normStorms(j); got.storms=true; }).catch(function(){});
     return Promise.all([pA,pS]).then(function(){
-      if(got.alerts||got.storms){ state.live=true; state.lastUpdated=new Date(); }
-      else { useSample(); }
+      if(got.alerts||got.storms){
+        // At least one feed is up → the board is live. Any feed that failed is
+        // blanked and flagged so its stale SAMPLE data is never shown as live.
+        state.live=true; state.liveA=got.alerts; state.liveS=got.storms;
+        if(!got.alerts) state.alerts=[];
+        if(!got.storms) state.storms=[];
+        state.lastUpdated=new Date();
+      } else { useSample(); }
       renderAll();
     });
   }
-  function useSample(){ state.live=false; state.alerts=SAMPLE.alerts.slice(); state.storms=SAMPLE.storms.slice(); state.lastUpdated=null; }
-  function refreshAlerts(){ fetchJSON(NWS_ALERTS).then(function(j){ state.alerts=normAlerts(j); state.live=true; state.lastUpdated=new Date(); renderAll(); }).catch(function(){}); }
-  function refreshStorms(){ fetchJSON(NHC_STORMS).then(function(j){ state.storms=normStorms(j); state.live=true; state.lastUpdated=new Date(); renderAll(); }).catch(function(){}); }
+  function useSample(){ state.live=false; state.liveA=false; state.liveS=false; state.alerts=SAMPLE.alerts.slice(); state.storms=SAMPLE.storms.slice(); state.lastUpdated=null; }
+  function refreshAlerts(){ fetchJSON(NWS_ALERTS).then(function(j){ state.alerts=normAlerts(j); state.live=true; state.liveA=true; state.lastUpdated=new Date(); renderAll(); }).catch(function(){}); }
+  function refreshStorms(){ fetchJSON(NHC_STORMS).then(function(j){ state.storms=normStorms(j); state.live=true; state.liveS=true; state.lastUpdated=new Date(); renderAll(); }).catch(function(){}); }
 
   /* ---------------- DECK CONTROLLER ---------------- */
-  var slides, idx=0, playing=true, elapsed=0, RAF=null, lastTs=0, prefersReduced=false;
+  var slides, idx=0, playing=true, elapsed=0, RAF=null, lastTs=0, hovering=false;
   function initDeck(){
     slides=$all(".slide");
-    prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var dots=$("#dots"); dots.innerHTML="";
     slides.forEach(function(s,i){
-      var b=el("i"); b.setAttribute("role","tab"); b.title=s.getAttribute("data-name")||("Panel "+(i+1));
+      var name=s.getAttribute("data-name")||("Panel "+(i+1));
+      var b=el("button"); b.type="button"; b.title=name;
+      b.setAttribute("aria-label","Go to "+name);
       b.addEventListener("click",function(){ go(i); });
       dots.appendChild(b);
     });
@@ -770,19 +857,20 @@ body{
     $("#next").addEventListener("click",function(){ go(idx+1); });
     $("#play").addEventListener("click",togglePlay);
     document.addEventListener("keydown",function(e){
+      var tag=(e.target&&e.target.tagName)||"";
       if(e.key==="ArrowRight"){ go(idx+1); } else if(e.key==="ArrowLeft"){ go(idx-1); }
-      else if(e.key===" "){ e.preventDefault(); togglePlay(); }
+      else if(e.key===" " && tag!=="BUTTON"){ e.preventDefault(); togglePlay(); }
     });
     var deck=$("#deck");
-    deck.addEventListener("mouseenter",function(){ if(playing) stopRAF(); });
-    deck.addEventListener("mouseleave",function(){ if(playing) startTimer(); });
-    document.addEventListener("visibilitychange",function(){ if(document.hidden){ stopRAF(); } else if(playing){ startTimer(); } });
+    deck.addEventListener("mouseenter",function(){ hovering=true; if(playing) stopRAF(); });
+    deck.addEventListener("mouseleave",function(){ hovering=false; if(playing) startTimer(); });
+    document.addEventListener("visibilitychange",function(){ if(document.hidden){ stopRAF(); } else if(playing && !hovering){ startTimer(); } });
     update(); startTimer();
   }
-  function go(n){ idx=(n+slides.length)%slides.length; update(); elapsed=0; if(playing){ stopRAF(); startTimer(); } }
+  function go(n){ idx=(n+slides.length)%slides.length; update(); elapsed=0; if(playing && !hovering){ stopRAF(); startTimer(); } }
   function update(){
     slides.forEach(function(s,i){ s.classList.toggle("on", i===idx); });
-    $all("#dots i").forEach(function(d,i){ d.classList.toggle("on",i===idx); });
+    $all("#dots button").forEach(function(d,i){ d.classList.toggle("on",i===idx); if(i===idx){ d.setAttribute("aria-current","true"); } else { d.removeAttribute("aria-current"); } });
     $("#count").textContent=(idx+1)+" / "+slides.length;
   }
   function startTimer(){ stopRAF(); lastTs=0; RAF=requestAnimationFrame(step); }
@@ -797,7 +885,10 @@ body{
   function stopRAF(){ if(RAF){ cancelAnimationFrame(RAF); RAF=null; } }
   function togglePlay(){
     playing=!playing;
-    $("#play").textContent=playing?"❚❚ Pause":"▶ Play";
+    var pb=$("#play");
+    pb.textContent=playing?"❚❚ Pause":"▶ Play";
+    pb.setAttribute("aria-label", playing?"Pause rotation":"Play rotation");
+    pb.setAttribute("aria-pressed", playing?"false":"true");
     if(playing){ startTimer(); } else { stopRAF(); $("#progress").style.width="0%"; }
   }
 
