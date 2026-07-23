@@ -1,6 +1,6 @@
 # The MCTV Playbook: Emulating a Place-Based DOOH Cash-Flow Empire
 
-*A strategy brief for MCTV — a place-based digital-out-of-home (DOOH) venue-screen network, established and scaling, with the goal of a durable recurring-cash-flow business the owner keeps (not a build-to-sell exit).*
+*A strategy brief for MCTV Digital, Inc. — an NTV360 franchise running indoor digital billboards placed free in local venues across the North Mississippi college-town corridor (Oxford, Starkville, Tupelo, Columbus, West Point). Established and scaling, with the goal of a durable recurring-cash-flow business the owners keep (not a build-to-sell exit).*
 
 ---
 
@@ -103,16 +103,30 @@ Mapped to your stage (established & scaling) and goal (recurring cash-flow empir
 
 ---
 
-## Open questions to tailor this to MCTV
+## Applying this to MCTV specifically
 
-To turn this into a specific 90-day action list, I need to know:
-1. **Venue types & footprint:** what venues are your screens in today, how many screens/venues, and in what geography?
-2. **Current host deals:** do you pay venues, rev-share, or give free screens? Any exclusivity clauses today?
-3. **How you sell now:** local direct, national, programmatic, or a mix? Roughly what CPM / package price?
-4. **Measurement:** do you count impressions / prove audience today, and how?
-5. **Team:** do you have a sales force, and is it commission-based?
+**What MCTV is today:** an NTV360 franchise (dealer #476) running **indoor digital billboards placed at no cost inside ~80–100 local host venues** — restaurants, bars, gyms, salons, medical offices, liquor stores, C-stores, retail — across five North Mississippi markets anchored by two SEC universities (Ole Miss in Oxford, Mississippi State in Starkville) plus Tupelo, Columbus, and West Point. Revenue comes from **selling ad slots on the network to local businesses** (billboard packages from a single location at $50/mo up to the full network, plus premium category packages — Law Firm, Automotive, Realtor, Exclusive — at $950–$1,550/mo), **plus reselling a digital-marketing stack** (Google Business Profile, social management/ads, geofencing/display, CTV/OTT, streaming audio, websites). Billboards are ~100% margin to MCTV; the digital services carry a revenue split with NTV360.
 
-Answer those and we'll convert this playbook into MCTV's specific numbers, rate card, host-deal template, and acquisition target list.
+**Why the analogs fit almost perfectly:** MCTV *is* the place-based screen model — screens in venues you don't own, monetized by advertising. de Gaspé Beaubien's Zoom Media is the same structure at national scale; **Doug Endsley's IndoorMedia is the same *sales motion* as MCTV's** (fragmented local advertisers, sold on exclusivity + measurable ROI, low capex, owner-held forever). So the emulation isn't a stretch — it's turning MCTV into the local, college-town version of what those two built.
+
+### The MCTV emulation plan — tailored moves
+
+1. **Upgrade the free-host deal into an *exclusive, sticky, amenity* deal.** NTV360 already gives venues screens for free — that's the frictionless entry. The upgrade (Zoom/GSTV lesson): write **exclusivity** into every host agreement (no competing screen network in that venue), hand each host a **free "house" promo slot** they control (their own marketing on their own screen), and consider a small rev-share or in-kind perk for marquee/high-traffic hosts (e.g., Hotel Tupelo, the golf courses, top gyms). That converts hosts from cancel-any-time placements into a defended, renewing footprint.
+
+2. **Shift the sales mix from cheap one-location slots toward *exclusive local category sponsorships* on annual auto-renew.** The durable-cash-flow lesson (IndoorMedia): sell "the only dentist / realtor / law firm / auto dealer on the Oxford network," annually, auto-renewing. Your rate card already has the premium packages (Law Firm $1,550, Automotive $1,250, Exclusive $1,200) — make them **category-exclusive by market** and default to 12-month terms. Exclusivity is the moat *and* the price-raiser.
+
+3. **Land college-town lighthouse anchors.** One signature that delivers many venues + instant credibility (Captivate's REIT move / GSTV's Murphy USA move). Targets: the universities and athletic departments, the largest local hospital/employer, downtown merchant associations, the biggest apartment/student-housing operators. Anchor a market, then the rest of the local businesses follow.
+
+4. **Raise revenue-per-advertiser by bundling owned billboards with the resold digital services.** Land the advertiser on a $250 billboard package, then expand the same account into GBP + social + geofencing → a $1,000–$2,000/month relationship. Billboards are the high-margin owned core and the *foot in the door*; the services deepen the account and the stickiness. (Watch the margin: keep the owned-billboard base large, since services split with NTV360.)
+
+5. **Add programmatic fill as the network grows.** Once you have enough screens/impressions in a market, connect unsold loop time to national DOOH demand (via a DOOH SSP or whatever NTV360 enables) — near-pure-margin dollars on top of the local book (the Zoom Media move).
+
+6. **Compound by roll-up / market expansion, funded by cash flow, keeping ownership.** The de Gaspé Beaubien move, localized: expand into adjacent Mississippi markets (Hattiesburg, Meridian, the wider Golden Triangle, DeSoto County/Memphis suburbs) — organically or by acquiring struggling local screen/ad operators or additional NTV360 territories — paid for out of recurring revenue, never dilutive capital.
+
+7. **Protect the compounding: retention + reliable operations.** Cash-flow empires are won on *renewals*, not new logos. Reduce host churn (exclusivity + amenity), reduce advertiser churn by *proving ROI* on the billboards the way you already do on geofencing (monthly/quarterly performance reporting), and get the back-office automation (the `mctv-*` Render jobs, QuickBooks reconcile, upsell triggers) running reliably so billing and renewals don't leak.
+
+### What would sharpen the numbers further
+The strategy above holds regardless, but to convert it into a dollar-specific 90-day plan we'd layer in MCTV's actuals — current MRR and revenue mix (billboards vs. services), host and advertiser churn rates, and average revenue per advertiser — all of which live in QuickBooks and the network dashboard and can be pulled on request.
 
 ---
 
