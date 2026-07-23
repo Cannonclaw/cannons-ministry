@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="hz:slide-selector" content=".slide">
+<meta name="description" content="MCTV Hurricane Watch — live Mississippi tropical tracker and local traffic feed for Oxford, Tupelo, and Starkville.">
+<title>MCTV Hurricane Watch</title>
+<style>
+:root{
+  --ink:#0B0F14; --panel:#141B23; --panel2:#1B2430; --panel3:#233040;
+  --line:#2A3641; --line2:#38495a;
+  --text:#E8EDF2; --muted:#93A1B0; --slate:#5C6B7E; --slate-bright:#8FA3B8;
+  --gold:#E6BD79; --green:#0A8A48; --green-bright:#3ED675;
+  /* threat scale */
+  --red:#E4232E; --red-deep:#B0151F; --orange:#F26419; --amber:#E6A417;
+  --yellow:#E6C64A; --calm:#2FB35C; --calm-bright:#4BE27E;
+  --chipink:#fff;
+}
+:root[data-theme="dark"]{ --ink:#0B0F14; --panel:#141B23; --panel2:#1B2430; --panel3:#233040; --line:#2A3641; --line2:#38495a;
+  --text:#E8EDF2; --muted:#93A1B0; --slate-bright:#8FA3B8; --gold:#E6BD79; --green-bright:#3ED675; }
+:root[data-theme="light"]{ --ink:#EEF1F4; --panel:#FFFFFF; --panel2:#E9EEF2; --panel3:#DCE4EB; --line:#C9D2DA; --line2:#b3c0cb;
+  --text:#141B23; --muted:#5C6B7E; --slate-bright:#46586B; --gold:#9A7328; --green-bright:#0A8A48; }
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){ --ink:#EEF1F4; --panel:#FFFFFF; --panel2:#E9EEF2; --panel3:#DCE4EB; --line:#C9D2DA; --line2:#b3c0cb;
+    --text:#141B23; --muted:#5C6B7E; --slate-bright:#46586B; --gold:#9A7328; --green-bright:#0A8A48; }
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--ink); color:var(--text);
+  font:16px/1.5 system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.deck{position:relative;height:100dvh;width:100%;overflow:hidden}
+.slide{
+  position:absolute; inset:0; display:none; padding:26px 34px 74px;
+  overflow:hidden; flex-direction:column;
+}
+.slide.on{display:flex}
+@media (prefers-reduced-motion: no-preference){
+  .slide.on{animation:fadein .45s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+}
+
+/* ---------- top chrome ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px;flex:0 0 auto}
+.wm{font-weight:900;letter-spacing:.30em;font-size:16px;line-height:1;white-space:nowrap}
+.wm small{display:block;font-weight:600;letter-spacing:.26em;font-size:8.5px;color:var(--muted);margin-top:3px}
+.wm .hw{color:var(--red);letter-spacing:.22em}
+.topmid{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+.crumb{font-size:11px;font-weight:800;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+.topright{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;letter-spacing:.04em}
+.clock small{display:block;font-weight:600;font-size:10px;color:var(--muted);letter-spacing:.14em;text-align:right}
+
+.livebadge{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--line2)}
+.livebadge .dot{width:8px;height:8px;border-radius:50%;background:var(--calm-bright)}
+.livebadge.live{color:var(--calm-bright);border-color:rgba(75,226,126,.45);background:rgba(47,179,92,.10)}
+.livebadge.sample{color:var(--gold);border-color:rgba(230,189,121,.4);background:rgba(230,189,121,.08)}
+.livebadge.sample .dot{background:var(--gold)}
+@media (prefers-reduced-motion: no-preference){
+  .livebadge.live .dot{animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(75,226,126,.55)}70%{box-shadow:0 0 0 9px rgba(75,226,126,0)}100%{box-shadow:0 0 0 0 rgba(75,226,126,0)}}
+}
+
+/* ---------- chips / tags ---------- */
+.tag{display:inline-block;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+
+/* ---------- SLIDE 0: hurricane watch cover ---------- */
+.cover{flex:1 1 auto;display:grid;grid-template-columns:1.15fr .85fr;gap:26px;min-height:0}
+@media (max-width:900px){ .cover{grid-template-columns:1fr;overflow-y:auto} }
+.threatcol{display:flex;flex-direction:column;min-height:0}
+.threatband{position:relative;border-radius:16px;padding:30px 32px;overflow:hidden;flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--line);color:#fff}
+.threatband .lvl{font-size:12px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;opacity:.92}
+.threatband .big{font-weight:900;font-size:clamp(46px,7vw,92px);line-height:.92;letter-spacing:-.015em;text-transform:uppercase;margin:8px 0 10px;text-wrap:balance}
+.threatband .desc{font-size:clamp(15px,1.7vw,19px);line-height:1.45;max-width:40ch;opacity:.97}
+.threatband .counties{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+.threatband .counties .tag{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.30);color:#fff}
+.threat-red{background:linear-gradient(135deg,var(--red-deep),var(--red));border-color:var(--red)}
+.threat-orange{background:linear-gradient(135deg,#c24a10,var(--orange));border-color:var(--orange)}
+.threat-yellow{background:linear-gradient(135deg,#9c7a12,var(--amber));border-color:var(--amber)}
+.threat-green{background:linear-gradient(135deg,#0f6d38,var(--calm));border-color:var(--calm)}
+.threatband .swirl{position:absolute;right:-70px;top:50%;transform:translateY(-50%);width:360px;height:360px;opacity:.16;pointer-events:none}
+@media (prefers-reduced-motion: no-preference){ .threatband .swirl{animation:spin 26s linear infinite} @keyframes spin{to{transform:translateY(-50%) rotate(360deg)}} }
+.headline{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--slate-bright);border-radius:12px;padding:16px 20px;flex:0 0 auto}
+.headline .lbl{font-size:10px;font-weight:800;letter-spacing:.24em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.headline .txt{font-size:clamp(15px,1.6vw,18px);font-weight:600;line-height:1.4;text-wrap:pretty}
+.headline .src{font-size:12px;color:var(--muted);margin-top:8px}
+
+.stormcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.stormcard .sc-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sc-head .name{font-weight:900;font-size:clamp(22px,2.6vw,30px);letter-spacing:.01em;text-transform:uppercase;line-height:1}
+.sc-head .name small{display:block;font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.12em;margin-top:5px}
+.sc-body{padding:14px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.catbadge{flex:0 0 auto;width:78px;height:78px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;color:#fff;border:3px solid rgba(255,255,255,.28)}
+.catbadge .cn{font-size:28px;line-height:1}
+.catbadge .cl{font-size:8.5px;letter-spacing:.16em;margin-top:2px}
+.metric-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.metric{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.metric .m-n{font-weight:900;font-size:21px;font-variant-numeric:tabular-nums;line-height:1.05}
+.metric .m-l{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.sc-move{font-size:13.5px;color:var(--slate-bright);line-height:1.5}
+.sc-move b{color:var(--text)}
+.allclear{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:26px 20px;flex:1 1 auto}
+.allclear .ac-ic{width:72px;height:72px;border-radius:50%;background:rgba(47,179,92,.14);border:2px solid var(--calm);display:flex;align-items:center;justify-content:center}
+.allclear h3{margin:0;font-size:24px;font-weight:900;letter-spacing:.01em}
+.allclear p{margin:0;color:var(--muted);max-width:34ch;line-height:1.5}
+
+/* ---------- SLIDE: storms / alerts headers ---------- */
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px;flex:0 0 auto}
+.section-h .st{font-weight:900;font-size:clamp(24px,3vw,34px);letter-spacing:.01em;text-transform:uppercase;line-height:1}
+.section-h .sub{color:var(--muted);font-size:13.5px}
+.scroll{flex:1 1 auto;min-height:0;overflow-y:auto}
+.stormgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+
+/* ---------- SLIDE: MS alerts board ---------- */
+.alertlist{display:flex;flex-direction:column;gap:11px}
+.alertrow{display:grid;grid-template-columns:8px 1fr auto;gap:16px;align-items:stretch;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.alertrow .stripe{background:var(--slate)}
+.alertrow.sev-warn .stripe{background:var(--red)}
+.alertrow.sev-watch .stripe{background:var(--orange)}
+.alertrow.sev-adv .stripe{background:var(--amber)}
+.alertrow .ar-main{padding:14px 4px 14px 0}
+.alertrow .ar-event{font-weight:900;font-size:clamp(16px,1.9vw,21px);letter-spacing:.01em;line-height:1.15}
+.alertrow .ar-area{color:var(--slate-bright);font-size:13px;margin-top:5px;line-height:1.4}
+.alertrow .ar-desc{color:var(--muted);font-size:12.5px;margin-top:7px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.alertrow .ar-side{padding:14px 18px 14px 0;text-align:right;display:flex;flex-direction:column;gap:6px;align-items:flex-end;justify-content:center;white-space:nowrap}
+.alertrow .ar-side .sev{font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.alertrow .ar-side .exp{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sev-warn .sev{color:#ff8a90} .sev-watch .sev{color:#ffab7a} .sev-adv .sev{color:var(--gold)}
+
+/* ---------- SLIDE: traffic ---------- */
+.traffic{flex:1 1 auto;display:grid;grid-template-columns:1fr 340px;gap:20px;min-height:0}
+@media (max-width:900px){ .traffic{grid-template-columns:1fr} }
+.mapwrap{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--panel2);min-height:0}
+.mapwrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.map-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:30px;color:var(--muted);
+  background:
+    repeating-linear-gradient(45deg, rgba(120,140,160,.05) 0 22px, transparent 22px 44px),
+    radial-gradient(1200px 500px at 30% 20%, rgba(47,99,138,.18), transparent 60%),
+    var(--panel2);}
+.map-fallback .mf-ic{width:56px;height:56px;border-radius:14px;background:var(--panel);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;color:var(--slate-bright)}
+.map-fallback h4{margin:0;color:var(--text);font-size:18px;font-weight:800;letter-spacing:.02em}
+.map-fallback p{margin:0;max-width:34ch;font-size:13px;line-height:1.5}
+.map-fallback code{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:var(--slate-bright);font-size:12px}
+.map-tag{position:absolute;top:12px;left:12px;z-index:3;display:inline-flex;align-items:center;gap:7px;background:rgba(4,10,22,.82);color:#fff;padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.map-tag .dot{width:8px;height:8px;border-radius:50%;background:var(--calm-bright)}
+
+.trafside{display:flex;flex-direction:column;gap:14px;min-height:0;overflow-y:auto}
+.townhead{display:flex;flex-direction:column;gap:4px}
+.townhead .tn{font-weight:900;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.01em;text-transform:uppercase;line-height:.98}
+.townhead .cty{color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.corridors{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.corridors .lbl{font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.corridors ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.corridors li{display:flex;align-items:center;gap:10px;font-size:14px;line-height:1.3}
+.corridors li .st-ic{flex:0 0 auto;width:10px;height:10px;border-radius:50%;background:var(--calm)}
+.corridors li.watch .st-ic{background:var(--amber)}
+.corridors li .rd{font-weight:700}
+.corridors li .note{color:var(--muted);font-size:12.5px;margin-left:auto;text-align:right}
+.townalert{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:12px;padding:13px 16px;font-size:13.5px;line-height:1.45}
+.townalert.none{border-left-color:var(--calm)}
+.townalert .lbl{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.townalert b{color:var(--gold)}
+.townalert.none b{color:var(--calm-bright)}
+
+/* ---------- ticker ---------- */
+.ticker{position:absolute;left:0;right:0;bottom:56px;height:34px;overflow:hidden;background:var(--red-deep);display:none;align-items:center;z-index:4}
+.ticker.on{display:flex}
+.ticker .tk-lbl{flex:0 0 auto;height:100%;display:flex;align-items:center;padding:0 16px;background:var(--red);color:#fff;font-weight:900;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.ticker .tk-track{flex:1 1 auto;overflow:hidden;white-space:nowrap;position:relative}
+.ticker .tk-move{display:inline-block;padding-left:100%;color:#fff;font-weight:600;font-size:13.5px;letter-spacing:.02em;will-change:transform}
+@media (prefers-reduced-motion: no-preference){ .ticker .tk-move{animation:scroll-left 42s linear infinite} @keyframes scroll-left{from{transform:translateX(0)}to{transform:translateX(-100%)}} }
+.ticker .tk-move span{margin:0 34px}
+
+/* ---------- nav ---------- */
+.nav{position:absolute;left:0;right:0;bottom:0;height:52px;display:flex;align-items:center;justify-content:center;gap:16px;padding:0 20px;
+  background:linear-gradient(180deg,transparent, color-mix(in srgb, var(--ink) 92%, transparent) 42%);z-index:6}
+.nav button{cursor:pointer;border:1px solid var(--line2);background:var(--panel);color:var(--text);border-radius:8px;padding:7px 14px;font-size:14px;font-weight:800;line-height:1}
+.nav button:hover{background:var(--panel2)}
+.nav button:focus-visible{outline:2px solid var(--slate-bright);outline-offset:2px}
+.dots{display:flex;gap:8px;align-items:center}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line2);cursor:pointer;transition:transform .15s,background .15s}
+.dots i.on{background:var(--slate-bright);transform:scale(1.25)}
+.count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:52px;text-align:center;letter-spacing:.08em}
+.progress{position:absolute;left:0;top:0;height:3px;background:var(--slate-bright);width:0;z-index:6}
+.playbtn{font-variant-numeric:tabular-nums}
+
+.footnote{position:absolute;right:14px;bottom:98px;font-size:10.5px;color:var(--slate);letter-spacing:.04em;z-index:5;text-align:right;max-width:46ch;pointer-events:none}
+.map-tag.preview{background:rgba(20,27,35,.9)}
+.map-tag.preview .dot{background:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck" aria-label="MCTV Hurricane Watch signage loop">
+  <div class="progress" id="progress"></div>
+
+  <!-- ============ SLIDE 0 · HURRICANE WATCH COVER ============ -->
+  <section class="slide on" data-name="Hurricane Watch">
+    <div class="topbar">
+      <div class="wm">MCTV <span class="hw">· HURRICANE WATCH</span><small>ELITE ADVERTISING · MISSISSIPPI</small></div>
+      <div class="topmid"><span class="crumb">Gulf Coast &amp; North Mississippi</span></div>
+      <div class="topright">
+        <span class="livebadge sample" id="badge0"><span class="dot"></span><span id="badgetxt0">Sample</span></span>
+        <span class="clock"><span id="clock0">—</span><small id="clockd0">—</small></span>
+      </div>
+    </div>
+
+    <div class="cover">
+      <div class="threatcol">
+        <div class="threatband threat-green" id="threatband">
+          <svg class="swirl" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+            <path d="M50 8 C74 12 88 30 88 50 C88 66 76 76 62 74"/>
+            <path d="M92 50 C88 26 70 12 50 12 C34 12 24 24 26 38"/>
+            <circle cx="50" cy="50" r="9" stroke-width="4"/>
+          </g></svg>
+          <div class="lvl" id="threatlvl">Tropical Outlook</div>
+          <div class="big" id="threatbig">All Clear</div>
+          <div class="desc" id="threatdesc">No tropical cyclone watches or warnings in effect for Mississippi.</div>
+          <div class="counties" id="threatcounties"></div>
+        </div>
+        <div class="headline">
+          <div class="lbl">Latest Advisory</div>
+          <div class="txt" id="headlinetxt">Awaiting the latest National Weather Service bulletin for Mississippi.</div>
+          <div class="src" id="headlinesrc">Source: NWS / National Hurricane Center</div>
+        </div>
+      </div>
+
+      <div class="stormcard" id="coverstorm"><!-- filled by JS --></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 1 · ACTIVE STORMS ============ -->
+  <section class="slide" data-name="Active Storms">
+    <div class="topbar">
+      <div class="wm">MCTV <span class="hw">· HURRICANE WATCH</span><small>ELITE ADVERTISING · MISSISSIPPI</small></div>
+      <div class="topmid"><span class="crumb">National Hurricane Center · Atlantic Basin</span></div>
+      <div class="topright"><span class="livebadge sample" id="badge1"><span class="dot"></span><span id="badgetxt1">Sample</span></span></div>
+    </div>
+    <div class="section-h">
+      <div class="st">Active Tropical Systems</div>
+      <div class="sub" id="stormsub">Atlantic, Caribbean &amp; Gulf of Mexico</div>
+    </div>
+    <div class="scroll"><div class="stormgrid" id="stormgrid"></div></div>
+  </section>
+
+  <!-- ============ SLIDE 2 · MS ALERTS ============ -->
+  <section class="slide" data-name="Mississippi Alerts">
+    <div class="topbar">
+      <div class="wm">MCTV <span class="hw">· HURRICANE WATCH</span><small>ELITE ADVERTISING · MISSISSIPPI</small></div>
+      <div class="topmid"><span class="crumb">National Weather Service · Active for Mississippi</span></div>
+      <div class="topright"><span class="livebadge sample" id="badge2"><span class="dot"></span><span id="badgetxt2">Sample</span></span></div>
+    </div>
+    <div class="section-h">
+      <div class="st">Statewide Alerts</div>
+      <div class="sub" id="alertsub">Warnings, watches &amp; advisories in effect</div>
+    </div>
+    <div class="scroll"><div class="alertlist" id="alertlist"></div></div>
+  </section>
+
+  <!-- ============ SLIDE 3 · TOWN TRAFFIC (prototype; clones added by JS) ============ -->
+  <section class="slide town-slide" data-town="0">
+    <div class="topbar">
+      <div class="wm">MCTV <span class="hw">· HURRICANE WATCH</span><small>ELITE ADVERTISING · MISSISSIPPI</small></div>
+      <div class="topmid"><span class="crumb">Live Local Traffic Watch</span></div>
+      <div class="topright"><span class="livebadge sample town-badge"><span class="dot"></span><span class="town-badge-t">Sample</span></span></div>
+    </div>
+    <div class="traffic">
+      <div class="mapwrap">
+        <span class="map-tag"><span class="dot"></span><span class="map-tag-t">Live Traffic</span></span>
+        <div class="map-fallback town-fallback">
+          <div class="mf-ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+          <h4>Live Waze traffic map</h4>
+          <p>Real-time flow &amp; incidents render here when this page is hosted at <code>MCTVofMS.com/hurricanewatch</code>. The preview sandbox blocks the external map frame.</p>
+        </div>
+        <!-- iframe injected by JS when possible -->
+      </div>
+      <div class="trafside">
+        <div class="townhead">
+          <div class="tn town-name">—</div>
+          <div class="cty town-cty">—</div>
+        </div>
+        <div class="townalert none town-wx">
+          <div class="lbl">Weather impact on roads</div>
+          <div class="town-wx-body"><b>Roads clear.</b> No flood, wind, or tropical alerts affecting local routes.</div>
+        </div>
+        <div class="corridors">
+          <div class="lbl">Key corridors — watch points</div>
+          <ul class="town-corridors"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- scrolling emergency ticker -->
+  <div class="ticker" id="ticker">
+    <div class="tk-lbl">⚠ Watch</div>
+    <div class="tk-track"><div class="tk-move" id="tkmove"></div></div>
+  </div>
+
+  <div class="footnote" id="footnote"></div>
+
+  <!-- nav -->
+  <div class="nav">
+    <button id="prev" aria-label="Previous panel">‹ Prev</button>
+    <button id="play" class="playbtn" aria-label="Pause or play rotation">❚❚ Pause</button>
+    <div class="dots" id="dots" role="tablist" aria-label="Panels"></div>
+    <span class="count" id="count">1 / 6</span>
+    <button id="next" aria-label="Next panel">Next ›</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+(function(){
+  /* ---------------- CONFIG ---------------- */
+  var NWS_ALERTS = "https://api.weather.gov/alerts/active?area=MS";
+  var NHC_STORMS = "https://www.nhc.noaa.gov/CurrentStorms.json";
+  var REFRESH_ALERTS_MS = 5*60*1000;   // 5 min
+  var REFRESH_STORMS_MS = 10*60*1000;  // 10 min
+  var SLIDE_MS = 14000;                // signage dwell per panel
+  var FETCH_TIMEOUT = 9000;
+
+  // MCTV markets. Coords center each town's live traffic map.
+  var TOWNS = [
+    { name:"Oxford", county:"Lafayette County", lat:34.3665, lon:-89.5192, zoom:14,
+      match:["lafayette","oxford"],
+      corridors:[
+        {rd:"MS-6 / Jackson Ave", note:"Main east–west artery"},
+        {rd:"University Ave", note:"Square ↔ campus"},
+        {rd:"Old Taylor Rd", note:"South residential"},
+        {rd:"MS-7 N", note:"To Holly Springs"},
+        {rd:"Sisk Ave / W Jackson", note:"Retail / hospital"}
+      ]},
+    { name:"Tupelo", county:"Lee County", lat:34.2576, lon:-88.7034, zoom:14,
+      match:["lee","tupelo"],
+      corridors:[
+        {rd:"US-45 (Gloster St)", note:"Primary N–S"},
+        {rd:"I-22 / US-78", note:"Regional east–west"},
+        {rd:"Main St", note:"Downtown core"},
+        {rd:"McCullough Blvd", note:"North / airport"},
+        {rd:"Barnes Crossing Rd", note:"Mall district"}
+      ]},
+    { name:"Starkville", county:"Oktibbeha County", lat:33.4504, lon:-88.8184, zoom:14,
+      match:["oktibbeha","starkville"],
+      corridors:[
+        {rd:"MS-12 (Main St)", note:"East–west spine"},
+        {rd:"MS-182", note:"Old Hwy 82 business"},
+        {rd:"Stark Rd", note:"MSU west side"},
+        {rd:"Blackjack Rd", note:"South growth corridor"},
+        {rd:"Hwy 25 / S Montgomery", note:"To campus / stadium"}
+      ]}
+  ];
+
+  /* ---------------- SAMPLE (clearly labeled; preview only) ---------------- */
+  var SAMPLE = {
+    storms:[{
+      name:"SAMPLE STORM", classification:"HU", intensity:85, pressure:968,
+      latitudeNumeric:26.7, longitudeNumeric:-88.9, movementDir:340, movementSpeed:11,
+      lastUpdate:"Demo data · not a live system"
+    }],
+    alerts:[
+      {event:"Hurricane Watch", areaDesc:"Hancock; Harrison; Jackson", severity:"Severe",
+       description:"SAMPLE record shown only in preview. Live National Weather Service text appears when hosted.",
+       expires:hoursFromNow(30), senderName:"NWS New Orleans LA (sample)"},
+      {event:"Storm Surge Watch", areaDesc:"Coastal Hancock; Coastal Harrison; Coastal Jackson", severity:"Severe",
+       description:"Sample storm surge messaging for the Mississippi Sound and back-bay areas.",
+       expires:hoursFromNow(30), senderName:"NWS (sample)"},
+      {event:"Flood Watch", areaDesc:"Lafayette; Lee; Oktibbeha; Pontotoc", severity:"Moderate",
+       description:"Sample inland flood watch covering North Mississippi as tropical moisture spreads north.",
+       expires:hoursFromNow(24), senderName:"NWS Memphis TN (sample)"},
+      {event:"High Wind Watch", areaDesc:"Lee; Monroe", severity:"Moderate",
+       description:"Sample high wind messaging for gusts along the outer bands.",
+       expires:hoursFromNow(18), senderName:"NWS (sample)"}
+    ]
+  };
+  function hoursFromNow(h){ var d=new Date(Date.now()+h*3600*1000); return d.toISOString(); }
+
+  /* ---------------- STATE ---------------- */
+  var state = { live:false, alerts:[], storms:[], lastUpdated:null };
+
+  /* ---------------- HELPERS ---------------- */
+  function $(s,r){ return (r||document).querySelector(s); }
+  function $all(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
+  function el(tag,cls,txt){ var e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; }
+  function num(v){ var n=parseFloat(v); return isFinite(n)?n:null; }
+  function ktToMph(kt){ return Math.round(kt*1.15078); }
+
+  function fetchJSON(url){
+    return new Promise(function(resolve,reject){
+      var done=false;
+      var t=setTimeout(function(){ if(!done){done=true;reject(new Error("timeout"));} }, FETCH_TIMEOUT);
+      try{
+        fetch(url,{headers:{"Accept":"application/geo+json,application/json"},cache:"no-store"})
+          .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+          .then(function(j){ if(!done){done=true;clearTimeout(t);resolve(j);} })
+          .catch(function(e){ if(!done){done=true;clearTimeout(t);reject(e);} });
+      }catch(e){ if(!done){done=true;clearTimeout(t);reject(e);} }
+    });
+  }
+
+  /* ---------------- CLASSIFY ---------------- */
+  var CLASS_NAMES = {TD:"Tropical Depression",TS:"Tropical Storm",HU:"Hurricane",MH:"Major Hurricane",
+    STD:"Subtropical Depression",STS:"Subtropical Storm",PTC:"Potential Tropical Cyclone",
+    PT:"Post-Tropical Cyclone",DB:"Disturbance",LO:"Low"};
+  function stormColor(cl,kt){
+    if(cl==="HU"||cl==="MH"){ return kt>=96 ? "var(--red-deep)" : "var(--red)"; }
+    if(cl==="TS"||cl==="STS"){ return "var(--orange)"; }
+    if(cl==="PTC"){ return "var(--amber)"; }
+    return "var(--slate)";
+  }
+  function saffirCat(kt){ if(kt>=137)return 5; if(kt>=113)return 4; if(kt>=96)return 3; if(kt>=83)return 2; if(kt>=64)return 1; return 0; }
+  function bearingName(deg){
+    if(deg==null||isNaN(deg))return "—";
+    var dirs=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+    return dirs[Math.round(((deg%360)/22.5))%16];
+  }
+  var MS_COAST={lat:30.30,lon:-88.90}; // ~Biloxi
+  function haversine(a,b){
+    var R=3958.8, dLat=(b.lat-a.lat)*Math.PI/180, dLon=(b.lon-a.lon)*Math.PI/180;
+    var s=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+    return Math.round(2*R*Math.asin(Math.min(1,Math.sqrt(s))));
+  }
+  function bearingFromCoast(storm){
+    var a=MS_COAST, b={lat:storm.latitudeNumeric,lon:storm.longitudeNumeric};
+    var y=Math.sin((b.lon-a.lon)*Math.PI/180)*Math.cos(b.lat*Math.PI/180);
+    var x=Math.cos(a.lat*Math.PI/180)*Math.sin(b.lat*Math.PI/180)-Math.sin(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.cos((b.lon-a.lon)*Math.PI/180);
+    return bearingName((Math.atan2(y,x)*180/Math.PI+360)%360);
+  }
+
+  /* ---------------- THREAT LEVEL ---------------- */
+  function deriveThreat(alerts){
+    var lvl="green", counties={};
+    function add(a){ (a.areaDesc||"").split(";").forEach(function(c){ c=c.trim(); if(c) counties[c]=1; }); }
+    alerts.forEach(function(a){ if((a.event||"").toLowerCase().indexOf("hurricane warning")>=0){ lvl="red"; add(a); } });
+    if(lvl!=="red") alerts.forEach(function(a){ var e=(a.event||"").toLowerCase();
+      if(e.indexOf("hurricane watch")>=0||e.indexOf("tropical storm warning")>=0||e.indexOf("storm surge warning")>=0){ lvl="orange"; add(a); } });
+    if(lvl==="green") alerts.forEach(function(a){ var e=(a.event||"").toLowerCase();
+      if(e.indexOf("tropical storm watch")>=0||e.indexOf("storm surge watch")>=0||e.indexOf("tropical")>=0||e.indexOf("flood")>=0||e.indexOf("high wind")>=0){ lvl="yellow"; add(a); } });
+    var map={
+      red:{lbl:"Hurricane Warning",big:"Take Cover",desc:"A Hurricane Warning is in effect. Hurricane conditions are expected — follow local emergency management orders now."},
+      orange:{lbl:"Hurricane / Tropical Watch",big:"Get Ready",desc:"Tropical cyclone conditions are possible. Finish preparations, know your evacuation zone, and stay tuned to official updates."},
+      yellow:{lbl:"Tropical Advisories",big:"Stay Aware",desc:"Flood, wind, or tropical advisories are active for parts of Mississippi. Monitor conditions and plan ahead."},
+      green:{lbl:"Tropical Outlook",big:"All Clear",desc:"No tropical cyclone watches or warnings in effect for Mississippi."}
+    };
+    return {lvl:lvl, info:map[lvl], counties:Object.keys(counties)};
+  }
+  function sevClass(a){ var e=(a.event||"").toLowerCase(); return e.indexOf("warning")>=0?"sev-warn":(e.indexOf("watch")>=0?"sev-watch":"sev-adv"); }
+  function sevWord(a){ var e=(a.event||"").toLowerCase(); return e.indexOf("warning")>=0?"Warning":(e.indexOf("watch")>=0?"Watch":"Advisory"); }
+  function alertRank(a){
+    var e=(a.event||"").toLowerCase();
+    if(e.indexOf("hurricane warning")>=0)return 0;
+    if(e.indexOf("storm surge warning")>=0)return 1;
+    if(e.indexOf("hurricane watch")>=0)return 2;
+    if(e.indexOf("tropical storm warning")>=0)return 3;
+    if(e.indexOf("storm surge watch")>=0)return 4;
+    if(e.indexOf("tropical storm watch")>=0)return 5;
+    if(e.indexOf("flood")>=0)return 6;
+    if(e.indexOf("wind")>=0)return 7;
+    if(e.indexOf("warning")>=0)return 8;
+    if(e.indexOf("watch")>=0)return 9;
+    return 10;
+  }
+
+  /* ---------------- RENDER ---------------- */
+  function fmtExpires(iso){ if(!iso)return ""; var d=new Date(iso); if(isNaN(d.getTime()))return ""; return "Until "+d.toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit'}); }
+
+  function metric(n,l){ var m=el("div","metric"); m.appendChild(el("div","m-n",n)); m.appendChild(el("div","m-l",l)); return m; }
+
+  function renderStormCardInner(container, s){
+    container.innerHTML="";
+    var kt=num(s.intensity)||0;
+    var cl=(s.classification||"").toUpperCase();
+    var cat=saffirCat(kt);
+    var isHurr=(cl==="HU"||cl==="MH"||cat>0);
+    var name=(s.name||"Unnamed").toUpperCase();
+    var typeName=CLASS_NAMES[cl]||(isHurr?"Hurricane":"Tropical System");
+    if(cat>=3) typeName="Major Hurricane";
+
+    var head=el("div","sc-head");
+    var nm=el("div","name"); nm.appendChild(document.createTextNode(name));
+    var sm=el("small"); sm.textContent=typeName; nm.appendChild(sm);
+    head.appendChild(nm);
+    var badge=el("div","catbadge"); badge.style.background=stormColor(cl,kt);
+    var cn=el("div","cn"); cn.textContent= isHurr ? (cat>0?("C"+cat):"H") : (cl==="TS"||cl==="STS"?"TS":(cl==="PTC"?"PTC":"TD"));
+    var clb=el("div","cl"); clb.textContent= (isHurr&&cat>0) ? "CATEGORY" : "TROPICAL";
+    badge.appendChild(cn); badge.appendChild(clb); head.appendChild(badge);
+    container.appendChild(head);
+
+    var body=el("div","sc-body");
+    var mrow=el("div","metric-row");
+    mrow.appendChild(metric(ktToMph(kt)+" mph","Max sustained wind"));
+    mrow.appendChild(metric((s.pressure?s.pressure+" mb":"—"),"Min pressure"));
+    mrow.appendChild(metric((s.movementSpeed!=null?s.movementSpeed+" mph "+bearingName(s.movementDir):"—"),"Moving"));
+    var dist=(s.latitudeNumeric!=null&&s.longitudeNumeric!=null)?haversine(MS_COAST,{lat:s.latitudeNumeric,lon:s.longitudeNumeric}):null;
+    mrow.appendChild(metric(dist!=null?(dist+" mi"):"—","From MS coast"));
+    body.appendChild(mrow);
+
+    if(s.latitudeNumeric!=null&&s.longitudeNumeric!=null){
+      var mv=el("div","sc-move");
+      mv.innerHTML="Center near <b>"+Math.abs(s.latitudeNumeric).toFixed(1)+"°"+(s.latitudeNumeric>=0?"N":"S")+", "+
+        Math.abs(s.longitudeNumeric).toFixed(1)+"°"+(s.longitudeNumeric>=0?"E":"W")+"</b>"+
+        (dist!=null?(" — about <b>"+dist+" miles "+bearingFromCoast(s)+"</b> of the Mississippi coast."):".");
+      body.appendChild(mv);
+    }
+    if(s.lastUpdate){ var up=el("div","sc-move"); up.style.color="var(--muted)"; up.style.fontSize="12px"; up.textContent="NHC update: "+s.lastUpdate; body.appendChild(up); }
+    container.appendChild(body);
+  }
+
+  function allClearCard(box,title,heading,msg){
+    box.innerHTML="";
+    var head=el("div","sc-head"); var nm=el("div","name"); nm.textContent=title; head.appendChild(nm); box.appendChild(head);
+    var ac=el("div","allclear");
+    var ic=el("div","ac-ic"); ic.innerHTML='<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#4BE27E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    ac.appendChild(ic); ac.appendChild(el("h3",null,heading)); ac.appendChild(el("p",null,msg));
+    box.appendChild(ac);
+  }
+
+  function mostRelevantStorm(){
+    if(!state.storms.length) return null;
+    var best=null,bestScore=-1;
+    state.storms.forEach(function(s){
+      if(s.latitudeNumeric==null) return;
+      var dist=haversine(MS_COAST,{lat:s.latitudeNumeric,lon:s.longitudeNumeric});
+      var kt=num(s.intensity)||0;
+      var score=(3000-Math.min(dist,3000))+kt*4;
+      if(score>bestScore){bestScore=score;best=s;}
+    });
+    return best||state.storms[0];
+  }
+
+  function renderCoverStorm(){
+    var box=$("#coverstorm"); var s=mostRelevantStorm();
+    if(s){ renderStormCardInner(box,s); }
+    else { allClearCard(box,"THE TROPICS","No active systems","There are no tropical cyclones currently active in the Atlantic basin. This board updates automatically as the National Hurricane Center posts new advisories."); }
+  }
+
+  function renderStormsSlide(){
+    var grid=$("#stormgrid"); grid.innerHTML="";
+    if(!state.storms.length){
+      var card=el("div","stormcard");
+      allClearCard(card,"ATLANTIC BASIN","No active tropical cyclones","The National Hurricane Center is not currently tracking any named storms or depressions in the Atlantic, Caribbean, or Gulf of Mexico.");
+      grid.appendChild(card);
+      $("#stormsub").textContent="Atlantic, Caribbean & Gulf of Mexico — all quiet";
+      return;
+    }
+    $("#stormsub").textContent=state.storms.length+" active system"+(state.storms.length>1?"s":"");
+    state.storms.forEach(function(s){ var c=el("div","stormcard"); renderStormCardInner(c,s); grid.appendChild(c); });
+  }
+
+  function renderAlertsSlide(){
+    var list=$("#alertlist"); list.innerHTML="";
+    var alerts=state.alerts.slice().sort(function(a,b){ return alertRank(a)-alertRank(b); });
+    if(!alerts.length){
+      var row=el("div","alertrow"); row.appendChild(el("div","stripe"));
+      var main=el("div","ar-main");
+      main.appendChild(el("div","ar-event","No active alerts for Mississippi"));
+      main.appendChild(el("div","ar-area","The National Weather Service has no warnings, watches, or advisories in effect statewide."));
+      row.appendChild(main); row.appendChild(el("div","ar-side")); list.appendChild(row);
+      $("#alertsub").textContent="All clear statewide"; return;
+    }
+    $("#alertsub").textContent=alerts.length+" active "+(alerts.length>1?"alerts":"alert");
+    alerts.slice(0,12).forEach(function(a){
+      var row=el("div","alertrow "+sevClass(a));
+      row.appendChild(el("div","stripe"));
+      var main=el("div","ar-main");
+      main.appendChild(el("div","ar-event",a.event||"Alert"));
+      main.appendChild(el("div","ar-area",a.areaDesc||""));
+      if(a.description){ main.appendChild(el("div","ar-desc",(a.description||"").replace(/\s+/g,' ').trim())); }
+      row.appendChild(main);
+      var side=el("div","ar-side");
+      side.appendChild(el("div","sev",sevWord(a)));
+      var ex=fmtExpires(a.expires); if(ex) side.appendChild(el("div","exp",ex));
+      if(a.senderName) side.appendChild(el("div","exp",a.senderName));
+      row.appendChild(side); list.appendChild(row);
+    });
+  }
+
+  /* town slides */
+  var townSlides=[];
+  function buildTownSlides(){
+    var proto=$(".town-slide"), deck=$("#deck");
+    for(var i=0;i<TOWNS.length;i++){
+      var node = i===0 ? proto : proto.cloneNode(true);
+      node.setAttribute("data-town", i);
+      node.setAttribute("data-name", TOWNS[i].name+" Traffic");
+      if(i>0){ deck.insertBefore(node, $("#ticker")); }
+      townSlides.push(node);
+    }
+  }
+  function townAlertsFor(t){
+    return state.alerts.filter(function(a){
+      var area=(a.areaDesc||"").toLowerCase();
+      return t.match.some(function(m){ return area.indexOf(m)>=0; });
+    });
+  }
+  function renderTownSlides(){
+    townSlides.forEach(function(node,i){
+      var t=TOWNS[i];
+      $(".town-name",node).textContent=t.name;
+      $(".town-cty",node).textContent=t.county;
+      var ul=$(".town-corridors",node); ul.innerHTML="";
+      var tas=townAlertsFor(t);
+      var floodish=tas.some(function(a){ var e=(a.event||"").toLowerCase(); return e.indexOf("flood")>=0||e.indexOf("wind")>=0||e.indexOf("tropical")>=0||e.indexOf("hurricane")>=0; });
+      t.corridors.forEach(function(c,idx){
+        var li=el("li"); if(floodish && idx<2) li.className="watch";
+        li.appendChild(el("span","st-ic"));
+        li.appendChild(el("span","rd",c.rd));
+        li.appendChild(el("span","note", floodish&&idx<2 ? "Weather watch" : c.note));
+        ul.appendChild(li);
+      });
+      var wx=$(".town-wx",node), body=$(".town-wx-body",node);
+      if(tas.length){
+        wx.classList.remove("none");
+        var names={}; tas.forEach(function(a){ if(a.event) names[a.event]=1; });
+        body.innerHTML="<b>"+Object.keys(names).join(", ")+"</b> in effect for "+t.county+". Watch for water over roadways, debris, and signal outages on the corridors below.";
+      } else {
+        wx.classList.add("none");
+        body.innerHTML="<b>Roads clear.</b> No flood, wind, or tropical alerts affecting local routes in "+t.county+".";
+      }
+      setBadge($(".town-badge",node),$(".town-badge-t",node));
+      // reflect live vs preview on the map pill
+      var tag=$(".map-tag",node), tagt=$(".map-tag-t",node);
+      if(tag){ tag.classList.toggle("preview",!state.live); }
+      if(tagt){ tagt.textContent=state.live?"Live Traffic":"Traffic · Preview"; }
+      mountTownMap(node,t);
+    });
+  }
+  // Only embed the external Waze map once we've confirmed outbound access
+  // (live data fetched). In a locked-down preview the labeled fallback stays.
+  function mountTownMap(node,t){
+    if(!state.live) return;
+    var wrap=$(".mapwrap",node);
+    if($("iframe",wrap)) return;
+    try{
+      var ifr=document.createElement("iframe");
+      ifr.setAttribute("title","Live traffic — "+t.name+", MS");
+      ifr.setAttribute("loading","lazy");
+      ifr.setAttribute("referrerpolicy","no-referrer-when-downgrade");
+      ifr.src="https://embed.waze.com/iframe?zoom="+t.zoom+"&lat="+t.lat+"&lon="+t.lon+"&ct=livemap&pin=1";
+      wrap.appendChild(ifr); // sits above the fallback; opaque Waze map covers it when loaded
+    }catch(e){/* keep fallback */}
+  }
+
+  /* ---------------- BADGES / CLOCK / THREAT / TICKER ---------------- */
+  function setBadge(node,txtNode){
+    if(!node) return;
+    node.classList.remove("live","sample");
+    node.classList.add(state.live?"live":"sample");
+    if(txtNode) txtNode.textContent = state.live ? "Live" : "Sample";
+  }
+  function updateAllBadges(){
+    setBadge($("#badge0"),$("#badgetxt0"));
+    setBadge($("#badge1"),$("#badgetxt1"));
+    setBadge($("#badge2"),$("#badgetxt2"));
+    $all(".town-badge").forEach(function(b){ setBadge(b,$(".town-badge-t",b)); });
+  }
+  function tickClock(){
+    var now=new Date();
+    var c0=$("#clock0"), d0=$("#clockd0");
+    if(c0)c0.textContent=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+    if(d0)d0.textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  }
+  function renderThreat(){
+    var th=deriveThreat(state.alerts);
+    $("#threatband").className="threatband threat-"+th.lvl;
+    $("#threatlvl").textContent=th.info.lbl;
+    $("#threatbig").textContent=th.info.big;
+    $("#threatdesc").textContent=th.info.desc;
+    var cc=$("#threatcounties"); cc.innerHTML="";
+    if(th.counties.length && th.lvl!=="green"){ th.counties.slice(0,8).forEach(function(c){ cc.appendChild(el("span","tag",c)); }); }
+    var top=state.alerts.slice().sort(function(a,b){return alertRank(a)-alertRank(b);})[0];
+    if(top){
+      $("#headlinetxt").textContent=(top.headline||(top.event+" — "+(top.areaDesc||"Mississippi")));
+      $("#headlinesrc").textContent="Source: "+(top.senderName||"National Weather Service");
+    } else {
+      $("#headlinetxt").textContent="No active National Weather Service bulletins for Mississippi. The tropics are quiet.";
+      $("#headlinesrc").textContent="Source: NWS / National Hurricane Center";
+    }
+    buildTicker(th);
+  }
+  function buildTicker(th){
+    var tk=$("#ticker"), mv=$("#tkmove");
+    var items=[];
+    state.alerts.slice().sort(function(a,b){return alertRank(a)-alertRank(b);}).forEach(function(a){
+      if(alertRank(a)<=7) items.push((a.event||"Alert")+" — "+(a.areaDesc||""));
+    });
+    if(th.lvl==="red"||th.lvl==="orange"||items.length){
+      mv.innerHTML="";
+      var line=items.length?items:["Monitoring the tropics for Mississippi — no active tropical warnings at this time."];
+      line.concat(line).forEach(function(s){ mv.appendChild(el("span",null,"⚠ "+s)); });
+      tk.classList.add("on");
+    } else { tk.classList.remove("on"); }
+  }
+
+  function renderAll(){
+    updateAllBadges();
+    renderThreat();
+    renderCoverStorm();
+    renderStormsSlide();
+    renderAlertsSlide();
+    renderTownSlides();
+    var when = state.lastUpdated ? state.lastUpdated.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : "—";
+    $("#footnote").textContent = state.live
+      ? ("Live · NWS + National Hurricane Center · updated "+when+" · auto-refreshes")
+      : ("SAMPLE DATA shown in preview — goes live automatically when hosted at MCTVofMS.com/hurricanewatch");
+  }
+
+  /* ---------------- LOAD / NORMALIZE ---------------- */
+  function parseLatLon(v){
+    if(v==null)return null; if(typeof v==="number")return v;
+    var m=(""+v).match(/([\d.]+)\s*([NSEW])/i);
+    if(!m) return num(v);
+    var n=parseFloat(m[1]), d=m[2].toUpperCase();
+    return (d==="S"||d==="W")?-n:n;
+  }
+  function normStorms(json){
+    var arr=(json&&(json.activeStorms||json.storms))||[];
+    if(!Array.isArray(arr)) return [];
+    // Atlantic basin only (AL…); Eastern/Central Pacific systems don't threaten Mississippi
+    return arr.filter(function(s){ var id=((s&&s.id)||"").toLowerCase(); return id==="" || id.indexOf("al")===0; })
+      .map(function(s){ return {
+        name:s.name, classification:(s.classification||"").toUpperCase(),
+        intensity:s.intensity, pressure:s.pressure,
+        latitudeNumeric:(s.latitudeNumeric!=null?num(s.latitudeNumeric):parseLatLon(s.latitude)),
+        longitudeNumeric:(s.longitudeNumeric!=null?num(s.longitudeNumeric):parseLatLon(s.longitude)),
+        movementDir:num(s.movementDir), movementSpeed:num(s.movementSpeed), lastUpdate:s.lastUpdate
+      };});
+  }
+  function normAlerts(json){
+    var f=(json&&json.features)||[];
+    if(!Array.isArray(f)) return [];
+    return f.map(function(x){ var p=(x&&x.properties)||{}; return {
+      event:p.event, areaDesc:p.areaDesc, severity:p.severity, headline:p.headline,
+      description:p.description, instruction:p.instruction, expires:p.expires,
+      effective:p.effective, senderName:p.senderName
+    };}).filter(function(a){ return a.event; });
+  }
+
+  function loadData(){
+    var got={alerts:false,storms:false};
+    var pA=fetchJSON(NWS_ALERTS).then(function(j){ var a=normAlerts(j); state.alerts=a; got.alerts=true; }).catch(function(){});
+    var pS=fetchJSON(NHC_STORMS).then(function(j){ state.storms=normStorms(j); got.storms=true; }).catch(function(){});
+    return Promise.all([pA,pS]).then(function(){
+      if(got.alerts||got.storms){ state.live=true; state.lastUpdated=new Date(); }
+      else { useSample(); }
+      renderAll();
+    });
+  }
+  function useSample(){ state.live=false; state.alerts=SAMPLE.alerts.slice(); state.storms=SAMPLE.storms.slice(); state.lastUpdated=null; }
+  function refreshAlerts(){ fetchJSON(NWS_ALERTS).then(function(j){ state.alerts=normAlerts(j); state.live=true; state.lastUpdated=new Date(); renderAll(); }).catch(function(){}); }
+  function refreshStorms(){ fetchJSON(NHC_STORMS).then(function(j){ state.storms=normStorms(j); state.live=true; state.lastUpdated=new Date(); renderAll(); }).catch(function(){}); }
+
+  /* ---------------- DECK CONTROLLER ---------------- */
+  var slides, idx=0, playing=true, elapsed=0, RAF=null, lastTs=0, prefersReduced=false;
+  function initDeck(){
+    slides=$all(".slide");
+    prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var dots=$("#dots"); dots.innerHTML="";
+    slides.forEach(function(s,i){
+      var b=el("i"); b.setAttribute("role","tab"); b.title=s.getAttribute("data-name")||("Panel "+(i+1));
+      b.addEventListener("click",function(){ go(i); });
+      dots.appendChild(b);
+    });
+    $("#prev").addEventListener("click",function(){ go(idx-1); });
+    $("#next").addEventListener("click",function(){ go(idx+1); });
+    $("#play").addEventListener("click",togglePlay);
+    document.addEventListener("keydown",function(e){
+      if(e.key==="ArrowRight"){ go(idx+1); } else if(e.key==="ArrowLeft"){ go(idx-1); }
+      else if(e.key===" "){ e.preventDefault(); togglePlay(); }
+    });
+    var deck=$("#deck");
+    deck.addEventListener("mouseenter",function(){ if(playing) stopRAF(); });
+    deck.addEventListener("mouseleave",function(){ if(playing) startTimer(); });
+    document.addEventListener("visibilitychange",function(){ if(document.hidden){ stopRAF(); } else if(playing){ startTimer(); } });
+    update(); startTimer();
+  }
+  function go(n){ idx=(n+slides.length)%slides.length; update(); elapsed=0; if(playing){ stopRAF(); startTimer(); } }
+  function update(){
+    slides.forEach(function(s,i){ s.classList.toggle("on", i===idx); });
+    $all("#dots i").forEach(function(d,i){ d.classList.toggle("on",i===idx); });
+    $("#count").textContent=(idx+1)+" / "+slides.length;
+  }
+  function startTimer(){ stopRAF(); lastTs=0; RAF=requestAnimationFrame(step); }
+  function step(ts){
+    if(!lastTs) lastTs=ts;
+    var dt=ts-lastTs; lastTs=ts; elapsed+=dt;
+    var pct=Math.min(elapsed/SLIDE_MS,1);
+    $("#progress").style.width=(pct*100)+"%";
+    if(elapsed>=SLIDE_MS){ elapsed=0; idx=(idx+1)%slides.length; update(); }
+    RAF=requestAnimationFrame(step);
+  }
+  function stopRAF(){ if(RAF){ cancelAnimationFrame(RAF); RAF=null; } }
+  function togglePlay(){
+    playing=!playing;
+    $("#play").textContent=playing?"❚❚ Pause":"▶ Play";
+    if(playing){ startTimer(); } else { stopRAF(); $("#progress").style.width="0%"; }
+  }
+
+  /* ---------------- BOOT ---------------- */
+  function boot(){
+    buildTownSlides();
+    useSample();     // instant labeled paint
+    renderAll();
+    initDeck();
+    tickClock(); setInterval(tickClock,1000);
+    loadData();      // attempt live
+    setInterval(refreshAlerts, REFRESH_ALERTS_MS);
+    setInterval(refreshStorms, REFRESH_STORMS_MS);
+  }
+  if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded",boot); } else { boot(); }
+})();
+</script>
+</body>
+</html>
