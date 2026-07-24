@@ -116,6 +116,9 @@ body{
 .metric .m-l{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:5px}
 .sc-move{font-size:13.5px;color:var(--slate-bright);line-height:1.5}
 .sc-move b{color:var(--text)}
+.scopewrap{margin-top:6px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.scope{width:100%;max-width:290px;aspect-ratio:1/1;display:block}
+.scope-cap{font-size:10.5px;color:var(--muted);text-align:center;letter-spacing:.02em;max-width:34ch;line-height:1.35}
 .allclear{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:26px 20px;flex:1 1 auto}
 .allclear .ac-ic{width:72px;height:72px;border-radius:50%;background:rgba(47,179,92,.14);border:2px solid var(--calm);display:flex;align-items:center;justify-content:center}
 .allclear h3{margin:0;font-size:24px;font-weight:900;letter-spacing:.01em}
@@ -523,11 +526,63 @@ body{
     var s=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
     return Math.round(2*R*Math.asin(Math.min(1,Math.sqrt(s))));
   }
-  function bearingFromCoast(storm){
-    var a=MS_COAST, b={lat:storm.latitudeNumeric,lon:storm.longitudeNumeric};
+  function bearingDeg(a,b){
     var y=Math.sin((b.lon-a.lon)*Math.PI/180)*Math.cos(b.lat*Math.PI/180);
     var x=Math.cos(a.lat*Math.PI/180)*Math.sin(b.lat*Math.PI/180)-Math.sin(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.cos((b.lon-a.lon)*Math.PI/180);
-    return bearingName((Math.atan2(y,x)*180/Math.PI+360)%360);
+    return (Math.atan2(y,x)*180/Math.PI+360)%360;
+  }
+  function bearingFromCoast(storm){
+    return bearingName(bearingDeg(MS_COAST,{lat:storm.latitudeNumeric,lon:storm.longitudeNumeric}));
+  }
+  function cssVar(n,f){ var v=getComputedStyle(document.documentElement).getPropertyValue(n); return (v&&v.trim())||f; }
+  // Range-scope locator: plots the storm by distance + bearing from the MS coast,
+  // with a heading arrow. Current position + heading — not the official NHC cone.
+  function drawScope(cv,s){
+    var g=cv.getContext("2d"); if(!g) return;
+    var W=300,H=300; cv.width=W*2; cv.height=H*2; g.setTransform(2,0,0,2,0,0);
+    g.clearRect(0,0,W,H);
+    var cx=W/2, cy=H*0.20, maxMi=430, R=Math.min(W*0.46,H*0.74), ppm=R/maxMi;
+    var line=cssVar('--line2','#38495a'), muted=cssVar('--muted','#93A1B0'), text=cssVar('--text','#E8EDF2');
+    g.font="10px system-ui,sans-serif";
+    // compass ticks
+    g.strokeStyle=line; g.globalAlpha=.5;
+    ["N","E","S","W"].forEach(function(d,i){ var a=i*90*Math.PI/180;
+      g.beginPath(); g.moveTo(cx+(R+2)*Math.sin(a),cy-(R+2)*Math.cos(a)); g.lineTo(cx+(R+9)*Math.sin(a),cy-(R+9)*Math.cos(a)); g.stroke(); });
+    g.globalAlpha=1; g.fillStyle=muted; g.textAlign="center";
+    g.fillText("N",cx,cy-R-12); g.fillText("S",cx,cy+R+16); g.fillText("E",cx+R+12,cy+3); g.fillText("W",cx-R-12,cy+3);
+    // range rings
+    g.strokeStyle=line; g.textAlign="left";
+    [100,200,300,400].forEach(function(mi){ var r=mi*ppm;
+      g.globalAlpha=.45; g.beginPath(); g.arc(cx,cy,r,0,Math.PI*2); g.stroke(); g.globalAlpha=.7;
+      g.fillStyle=muted; g.fillText(mi,cx+3,cy-r+11); });
+    g.globalAlpha=1;
+    // home (MS coast)
+    g.fillStyle=cssVar('--slate-bright','#8FA3B8');
+    g.beginPath(); g.arc(cx,cy,4.5,0,Math.PI*2); g.fill();
+    g.fillStyle=text; g.font="bold 9px system-ui,sans-serif"; g.textAlign="center";
+    g.fillText("MS COAST",cx,cy-9);
+    // storm
+    if(s && s.latitudeNumeric!=null && s.longitudeNumeric!=null){
+      var sp={lat:s.latitudeNumeric,lon:s.longitudeNumeric};
+      var dist=haversine(MS_COAST,sp), brg=bearingDeg(MS_COAST,sp)*Math.PI/180;
+      var rr=Math.min(dist,maxMi)*ppm, sx=cx+rr*Math.sin(brg), sy=cy-rr*Math.cos(brg);
+      // heading arrow
+      if(s.movementDir!=null && s.movementDir>=0 && s.movementDir<=360){
+        var hd=s.movementDir*Math.PI/180, L=24, ex=sx+L*Math.sin(hd), ey=sy-L*Math.cos(hd);
+        g.strokeStyle=text; g.globalAlpha=.75; g.lineWidth=2;
+        g.beginPath(); g.moveTo(sx,sy); g.lineTo(ex,ey); g.stroke();
+        var ah=5; g.beginPath(); g.moveTo(ex,ey);
+        g.lineTo(ex-ah*Math.sin(hd-0.5),ey+ah*Math.cos(hd-0.5)); g.moveTo(ex,ey);
+        g.lineTo(ex-ah*Math.sin(hd+0.5),ey+ah*Math.cos(hd+0.5)); g.stroke(); g.globalAlpha=1;
+      }
+      var kt=num(s.intensity)||0;
+      g.fillStyle = kt>=96?'#B0151F':(kt>=64?'#E4232E':(kt>=34?'#F26419':'#E6A417'));
+      g.beginPath(); g.arc(sx,sy,7,0,Math.PI*2); g.fill();
+      g.strokeStyle="rgba(255,255,255,.85)"; g.lineWidth=1.5; g.stroke();
+      g.fillStyle=text; g.font="bold 9px system-ui,sans-serif"; g.textAlign="center";
+      g.fillText((s.name||"").slice(0,10).toUpperCase(), sx, sy+18);
+    }
+    g.textAlign="left";
   }
 
   /* ---------------- THREAT LEVEL ---------------- */
@@ -569,7 +624,7 @@ body{
 
   function metric(n,l){ var m=el("div","metric"); m.appendChild(el("div","m-n",n)); m.appendChild(el("div","m-l",l)); return m; }
 
-  function renderStormCardInner(container, s){
+  function renderStormCardInner(container, s, showScope){
     container.innerHTML="";
     var kt=num(s.intensity)||0;
     var cl=(s.classification||"").toUpperCase();
@@ -610,6 +665,15 @@ body{
       body.appendChild(mv);
     }
     if(s.lastUpdate){ var up=el("div","sc-move"); up.style.color="var(--muted)"; up.style.fontSize="12px"; up.textContent="NHC update: "+s.lastUpdate; body.appendChild(up); }
+    if(showScope && s.latitudeNumeric!=null && s.longitudeNumeric!=null){
+      var sw=el("div","scopewrap");
+      var cap=el("div","scope-cap"); cap.textContent="Range from MS coast · arrow = heading (not the official forecast cone)";
+      var cv=document.createElement("canvas"); cv.className="scope";
+      cv.setAttribute("role","img");
+      cv.setAttribute("aria-label",(s.name||"Storm")+" is about "+dist+" miles "+bearingFromCoast(s)+" of the Mississippi coast, heading "+bearingName(s.movementDir)+".");
+      sw.appendChild(cv); sw.appendChild(cap); body.appendChild(sw);
+      drawScope(cv,s);
+    }
     container.appendChild(body);
   }
 
@@ -651,7 +715,7 @@ body{
   function renderCoverStorm(){
     var box=$("#coverstorm"); var s=mostRelevantStorm();
     if(stormsUnavailable()){ unavailCard(box,"THE TROPICS","Storm data unavailable","The National Hurricane Center feed can't be reached right now. Alerts on this board remain live. Check hurricanes.gov for the latest track."); }
-    else if(s){ renderStormCardInner(box,s); }
+    else if(s){ renderStormCardInner(box,s,true); }
     else { allClearCard(box,"THE TROPICS","No active systems","There are no tropical cyclones currently active in the Atlantic basin. This board updates automatically as the National Hurricane Center posts new advisories."); }
   }
 
