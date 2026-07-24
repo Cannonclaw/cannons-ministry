@@ -24,6 +24,12 @@ pause-on-hover, and a live clock):
 A scrolling emergency ticker appears whenever tropical/flood/wind alerts are active, and a
 **sponsor slot** ("Presented by") sits in the nav as premium hurricane-season ad inventory.
 
+The cover storm card includes a **range-scope locator** — the storm plotted by distance and
+bearing from the MS coast, with a heading arrow (current position + heading, not the official
+NHC cone). When a Hurricane/Tropical Warning or Watch goes active, an **alert priority mode**
+kicks in: an ambient red/orange cue, the board jumps to the warning as the threat escalates,
+and the weather panels dwell longer while traffic panels shorten.
+
 ## Data sources (all keyless)
 
 | Feed | Source | Notes |
