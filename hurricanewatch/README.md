@@ -15,11 +15,14 @@ pause-on-hover, and a live clock):
 2. **Active Tropical Systems** — NHC storm cards: category, max wind, pressure, position,
    movement, and distance/bearing to the Mississippi coast.
 3. **Statewide Alerts** — NWS warnings/watches/advisories for Mississippi, severity-sorted.
-4–6. **Oxford / Tupelo / Starkville Traffic** — live Waze traffic map, a weather-impact-on-roads
+4. **Be Ready** — hurricane-season preparedness: build-a-kit / have-a-plan / stay-informed
+   cards with MEMA and official-source guidance.
+5–7. **Oxford / Tupelo / Starkville Traffic** — live Waze traffic map, a weather-impact-on-roads
    box, and a key-corridor watch list that flags corridors when a flood/wind/tropical alert
    covers that county.
 
-A scrolling emergency ticker appears whenever tropical/flood/wind alerts are active.
+A scrolling emergency ticker appears whenever tropical/flood/wind alerts are active, and a
+**sponsor slot** ("Presented by") sits in the nav as premium hurricane-season ad inventory.
 
 ## Data sources (all keyless)
 
@@ -60,3 +63,6 @@ Open `index.html` and edit the `CONFIG` block near the top of the script:
 - `SLIDE_MS` — dwell time per panel (default 14000 ms).
 - `REFRESH_ALERTS_MS` / `REFRESH_STORMS_MS` — auto-refresh cadence.
 - `TOWNS` — add/remove markets or adjust map center, zoom, and the key-corridor list.
+- `SPONSOR` — sell the "Presented by" slot. Set `house:false` and fill
+  `name` / `tagline` / `url` to run a paid sponsor; leave it as-is for the MCTV
+  house "Advertise With Us" slot.
