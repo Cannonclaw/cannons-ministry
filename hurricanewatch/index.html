@@ -204,7 +204,30 @@ body{
 .progress{position:absolute;left:0;top:0;height:3px;background:var(--slate-bright);width:0;z-index:6}
 .playbtn{font-variant-numeric:tabular-nums}
 
-.footnote{position:absolute;right:14px;bottom:98px;font-size:10.5px;color:var(--slate);letter-spacing:.04em;z-index:5;text-align:right;max-width:46ch;pointer-events:none}
+.footnote{position:absolute;right:14px;bottom:98px;font-size:10.5px;color:var(--slate);letter-spacing:.04em;z-index:5;text-align:right;max-width:40ch;pointer-events:none}
+
+/* ---------- preparedness panel ---------- */
+.prep{flex:1 1 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;min-height:0}
+@media(max-width:900px){ .prep{grid-template-columns:1fr;overflow-y:auto} }
+.prepcard{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--slate-bright);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;min-height:0}
+.prepcard.kit{border-top-color:var(--calm)} .prepcard.plan{border-top-color:var(--amber)} .prepcard.info{border-top-color:var(--red)}
+.prepcard h3{margin:0;font-size:clamp(19px,2.1vw,25px);font-weight:900;letter-spacing:.01em;text-transform:uppercase;line-height:1.05}
+.prepcard>.sub{color:var(--muted);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin:6px 0 14px}
+.prepcard ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;overflow-y:auto}
+.prepcard li{position:relative;padding-left:22px;font-size:15px;line-height:1.35}
+.prepcard li::before{content:"";position:absolute;left:0;top:.5em;width:8px;height:8px;border-radius:2px;background:var(--slate-bright)}
+.prepcard.kit li::before{background:var(--calm)} .prepcard.plan li::before{background:var(--amber)} .prepcard.info li::before{background:var(--red)}
+.prepcard li b{font-weight:800}
+
+/* ---------- sponsor bug (nav, left) ---------- */
+.sponsor{position:absolute;left:16px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 13px;max-width:38ch}
+.sponsor .pb{font-size:8.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.sponsor .sp{font-size:13.5px;font-weight:800;letter-spacing:.01em;line-height:1.1}
+.sponsor .sp small{display:block;font-weight:600;font-size:10px;color:var(--muted);letter-spacing:.02em;margin-top:2px}
+.sponsor.house{border-style:dashed;border-color:var(--line2)}
+.sponsor.house .sp{color:var(--gold)}
+.sponsor:focus-visible{outline:2px solid var(--slate-bright);outline-offset:2px}
+@media(max-width:820px){ .sponsor{display:none} }
 .map-tag.preview{background:rgba(20,27,35,.9)}
 .map-tag.preview .dot{background:var(--gold)}
 </style>
@@ -277,7 +300,58 @@ body{
     <div class="scroll"><div class="alertlist" id="alertlist"></div></div>
   </section>
 
-  <!-- ============ SLIDE 3 · TOWN TRAFFIC (prototype; clones added by JS) ============ -->
+  <!-- ============ SLIDE 3 · BE READY (static preparedness) ============ -->
+  <section class="slide" data-name="Be Ready">
+    <div class="topbar">
+      <div class="wm">MCTV <span class="hw">· HURRICANE WATCH</span><small>ELITE ADVERTISING · MISSISSIPPI</small></div>
+      <div class="topmid"><span class="crumb">Hurricane Season Preparedness</span></div>
+      <div class="topright"><span class="crumb">Mississippi Emergency Mgmt · MEMA</span></div>
+    </div>
+    <div class="section-h">
+      <div class="st">Be Ready Before It Hits</div>
+      <div class="sub">Three things every Mississippi household should do now</div>
+    </div>
+    <div class="prep">
+      <div class="prepcard kit">
+        <h3>Build a Kit</h3>
+        <div class="sub">3+ days per person</div>
+        <ul>
+          <li><b>Water</b> — 1 gallon per person, per day</li>
+          <li><b>Food</b> — 3+ days non-perishable</li>
+          <li><b>Meds</b> — 7-day supply + prescriptions</li>
+          <li><b>Power</b> — flashlights, batteries, chargers</li>
+          <li><b>Docs</b> — IDs, insurance, cash in a dry bag</li>
+          <li><b>Radio</b> — battery or hand-crank NOAA radio</li>
+        </ul>
+      </div>
+      <div class="prepcard plan">
+        <h3>Have a Plan</h3>
+        <div class="sub">Know before the warning</div>
+        <ul>
+          <li><b>Know your zone</b> — look up your evacuation zone today</li>
+          <li><b>Two routes</b> — plan a primary and a backup out</li>
+          <li><b>Meet-up</b> — pick a place family reunites</li>
+          <li><b>Fuel up</b> — keep the tank above half</li>
+          <li><b>Pets</b> — food, carrier, vet records ready</li>
+          <li><b>Home</b> — clear gutters, secure loose items</li>
+        </ul>
+      </div>
+      <div class="prepcard info">
+        <h3>Stay Informed</h3>
+        <div class="sub">Trust official sources</div>
+        <ul>
+          <li><b>Warnings</b> — weather.gov &amp; NOAA Weather Radio</li>
+          <li><b>The storm</b> — hurricanes.gov (Nat'l Hurricane Center)</li>
+          <li><b>State</b> — MEMA: msema.org · @MSEMA</li>
+          <li><b>Prepare</b> — ready.gov/hurricanes</li>
+          <li><b>Emergency</b> — call <b>911</b>; info line <b>211</b></li>
+          <li><b>When told to go</b>, go. Don't wait out a warning.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 4 · TOWN TRAFFIC (prototype; clones added by JS) ============ -->
   <section class="slide town-slide" data-town="0">
     <div class="topbar">
       <div class="wm">MCTV <span class="hw">· HURRICANE WATCH</span><small>ELITE ADVERTISING · MISSISSIPPI</small></div>
@@ -321,6 +395,7 @@ body{
 
   <!-- nav -->
   <div class="nav">
+    <a class="sponsor house" id="sponsor" href="#" rel="noopener"><span class="pb">Presented by</span><span class="sp" id="sponsorname">Advertise With Us<small id="sponsortag">Reach every screen · MCTV Elite Advertising</small></span></a>
     <button id="prev" aria-label="Previous panel">‹ Prev</button>
     <button id="play" class="playbtn" aria-label="Pause rotation" aria-pressed="false">❚❚ Pause</button>
     <div class="dots" id="dots" aria-label="Jump to panel"></div>
@@ -339,6 +414,11 @@ body{
   var REFRESH_STORMS_MS = 10*60*1000;  // 10 min
   var SLIDE_MS = 14000;                // signage dwell per panel
   var FETCH_TIMEOUT = 9000;
+
+  // Sponsor slot — sell this board as premium hurricane-season inventory.
+  // Set house:false and fill name/tagline/url to run a paid sponsor;
+  // leave as-is for the MCTV house "advertise with us" slot.
+  var SPONSOR = { house:true, name:"", tagline:"", url:"" };
 
   // MCTV markets. Coords center each town's live traffic map.
   var TOWNS = [
@@ -893,8 +973,28 @@ body{
   }
 
   /* ---------------- BOOT ---------------- */
+  function renderSponsor(){
+    var box=$("#sponsor"); if(!box) return;
+    var nm=$("#sponsorname"), tg=$("#sponsortag");
+    if(SPONSOR.house || !SPONSOR.name){
+      box.classList.add("house");
+      // first child of #sponsorname is the text node before the <small>
+      nm.childNodes[0].nodeValue="Advertise With Us";
+      tg.textContent="Reach every screen · MCTV Elite Advertising";
+      box.setAttribute("href", SPONSOR.url || "#");
+      box.setAttribute("aria-label","Advertise with MCTV Elite Advertising");
+    } else {
+      box.classList.remove("house");
+      nm.childNodes[0].nodeValue=SPONSOR.name;
+      tg.textContent=SPONSOR.tagline||"";
+      if(SPONSOR.url){ box.setAttribute("href",SPONSOR.url); box.setAttribute("target","_blank"); }
+      else { box.removeAttribute("href"); }
+      box.setAttribute("aria-label","Presented by "+SPONSOR.name);
+    }
+  }
   function boot(){
     buildTownSlides();
+    renderSponsor();
     useSample();     // instant labeled paint
     renderAll();
     initDeck();
